@@ -21,7 +21,7 @@ class App extends BaseConfig
 	| environments.
 	|
 	*/
-	public $baseURL = 'https://222324.fornex.cloud/';
+	public $baseURL = 'https://site.ru/';
 
 	/*
 	|--------------------------------------------------------------------------
