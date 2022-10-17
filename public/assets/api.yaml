@@ -1,0 +1,1096 @@
+openapi: 3.0.0
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: 'Авторизация пользователя.'
+      operationId: userLogin
+      requestBody:
+        description: 'Email user'
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                email:
+                  description: admin@mail.ru
+                  type: string
+                password:
+                  description: '123456'
+                  type: string
+              type: object
+      responses:
+        '200':
+          description: 'Login successed'
+          content:
+            application/json:
+              schema: {  }
+            application/xml:
+              schema: {  }
+        '400':
+          description: 'Invalid username/password supplied'
+  /auth/getUserByToken:
+    post:
+      tags:
+        - Authentication
+      summary: 'Получает пользователя по токену'
+      operationId: getUserByToken
+      requestBody:
+        description: Token
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                token:
+                  type: string
+              type: object
+      responses:
+        '200':
+          description: 'Вернется масив с пользователем'
+          content:
+            application/json:
+              schema:
+                properties:
+                  user: { type: array, items: { $ref: '#/components/schemas/User' } }
+                type: object
+            application/xml:
+              schema:
+                properties:
+                  user: { type: array, items: { $ref: '#/components/schemas/User' } }
+                type: object
+        '400':
+          description: 'Invalid token'
+        '404':
+          description: 'Пользователь не найден'
+  /auth/logout:
+    get:
+      tags:
+        - Authentication
+      summary: 'Logout user'
+      operationId: userLogout
+      requestBody:
+        description: 'Logout user'
+      responses:
+        '200':
+          description: 'Logout successed'
+        '400':
+          description: Invalid
+  /auth/forgot:
+    post:
+      tags:
+        - Authentication
+      summary: 'Востановление пароля'
+      operationId: userForgot
+      requestBody:
+        description: 'Email user'
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                email:
+                  description: admin@mail.ru
+                  type: string
+              type: object
+      responses:
+        '200':
+          description: 'Password recovery success'
+          content:
+            application/json:
+              schema: {  }
+        '400':
+          description: 'Invalid email supplied'
+        '404':
+          description: 'Пользователя с таким email не найдено'
+  /pages:
+    get:
+      tags:
+        - Pages
+      summary: 'Find list Pages'
+      description: 'Returns list of Pages'
+      operationId: getPages
+      parameters:
+        -
+          name: search
+          in: query
+          description: 'поиск по определенному столбцу'
+          schema:
+            type: object
+        -
+          name: order
+          in: query
+          description: 'сортировка по определенному столбцу'
+          schema:
+            type: object
+        -
+          name: page
+          in: query
+          description: Страница
+          schema:
+            type: int32
+        -
+          name: limit
+          in: query
+          description: 'Элементов на странице'
+          schema:
+            type: int32
+      responses:
+        '200':
+          description: 'успешная операция'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Pages' } }
+                  pagination: { properties: { currentPage: { type: integer }, totalPage: { type: integer } }, type: object }
+                type: object
+            application/xml:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Pages' } }
+                  pagination: { type: array, items: { $ref: '#/components/schemas/Pages' } }
+                type: object
+        '404':
+          description: 'Pages не найден'
+      security:
+        -
+          bearer_auth: []
+    post:
+      tags:
+        - Pages
+      summary: 'Add a new Pages to the store'
+      operationId: addPages
+      requestBody:
+        $ref: '#/components/requestBodies/Pages'
+      responses:
+        '201':
+          description: 'Created Pages'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pages'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Pages'
+        '405':
+          description: 'Invalid input'
+      security:
+        -
+          bearer_auth: []
+  '/pages/{id}':
+    get:
+      tags:
+        - Pages
+      summary: 'Find Pages by ID'
+      description: 'Returns a single Pages'
+      operationId: getPagesById
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID of Pages to return'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pages'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Pages'
+        '400':
+          description: 'Invalid ID supplier'
+        '404':
+          description: 'Pages not found'
+      security:
+        -
+          bearer_auth: []
+    put:
+      tags:
+        - Pages
+      summary: 'Update an existing Pages'
+      operationId: updatePages
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Pages id to update'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/Pages'
+      responses:
+        '400':
+          description: 'Invalid ID supplied'
+        '404':
+          description: 'Pages not found'
+        '405':
+          description: 'Validation exception'
+      security:
+        -
+          bearer_auth: []
+    delete:
+      tags:
+        - Pages
+      summary: 'Deletes a Pages'
+      operationId: deletePages
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Pages id to delete'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: 'Invalid ID supplied'
+        '404':
+          description: 'Pet not found'
+      security:
+        -
+          bearer_auth: []
+  /UserAccess:
+    get:
+      tags:
+        - UserAccess
+      summary: 'Find list UserAccess'
+      description: 'Returns list of UserAccess'
+      operationId: getUserAccess
+      parameters:
+        -
+          name: search
+          in: query
+          description: 'поиск по определенному столбцу'
+          schema:
+            type: object
+        -
+          name: order
+          in: query
+          description: 'сортировка по определенному столбцу'
+          schema:
+            type: object
+        -
+          name: page
+          in: query
+          description: Страница
+          schema:
+            type: int32
+        -
+          name: limit
+          in: query
+          description: 'Элементов на странице'
+          schema:
+            type: int32
+      responses:
+        '200':
+          description: 'успешная операция'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/UserAccess' } }
+                  pagination: { properties: { currentPage: { type: integer }, totalPage: { type: integer } }, type: object }
+                type: object
+            application/xml:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/UserAccess' } }
+                  pagination: { type: array, items: { $ref: '#/components/schemas/UserAccess' } }
+                type: object
+        '404':
+          description: 'UserAccess не найден'
+      security:
+        -
+          bearer_auth: []
+  '/UserAccess/{id}':
+    put:
+      tags:
+        - UserAccess
+      summary: 'Update an existing UserAccess'
+      operationId: updateUserAccess
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'UserAccess id to update'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/UserAccess'
+      responses:
+        '400':
+          description: 'Invalid ID supplied'
+        '404':
+          description: 'UserAccess not found'
+        '405':
+          description: 'Validation exception'
+      security:
+        -
+          bearer_auth: []
+  /userRoles:
+    get:
+      tags:
+        - UserRoles
+      summary: 'Find list UserRoles'
+      description: 'Returns list of UserRoles'
+      operationId: getUserRoles
+      parameters:
+        -
+          name: search
+          in: query
+          description: 'поиск по определенному столбцу'
+          schema:
+            type: object
+        -
+          name: order
+          in: query
+          description: 'сортировка по определенному столбцу'
+          schema:
+            type: object
+        -
+          name: page
+          in: query
+          description: Страница
+          schema:
+            type: int32
+        -
+          name: limit
+          in: query
+          description: 'Элементов на странице'
+          schema:
+            type: int32
+      responses:
+        '200':
+          description: 'успешная операция'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/UserRoles' } }
+                  pagination: { properties: { currentPage: { type: integer }, totalPage: { type: integer } }, type: object }
+                type: object
+            application/xml:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/UserRoles' } }
+                  pagination: { type: array, items: { $ref: '#/components/schemas/UserRoles' } }
+                type: object
+        '404':
+          description: 'UserRoles не найден'
+      security:
+        -
+          bearer_auth: []
+    post:
+      tags:
+        - UserRoles
+      summary: 'Add a new UserRoles to the store'
+      operationId: addUserRoles
+      requestBody:
+        $ref: '#/components/requestBodies/UserRoles'
+      responses:
+        '201':
+          description: 'Created UserRoles'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRoles'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/UserRoles'
+        '405':
+          description: 'Invalid input'
+      security:
+        -
+          bearer_auth: []
+  '/userRoles/{id}':
+    get:
+      tags:
+        - UserRoles
+      summary: 'Find UserRoles by ID'
+      description: 'Returns a single UserRoles'
+      operationId: getUserRolesById
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID of UserRoles to return'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRoles'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/UserRoles'
+        '400':
+          description: 'Invalid ID supplier'
+        '404':
+          description: 'UserRoles not found'
+      security:
+        -
+          bearer_auth: []
+    put:
+      tags:
+        - UserRoles
+      summary: 'Update an existing UserRoles'
+      operationId: updateUserRoles
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'UserRoles id to update'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/UserRoles'
+      responses:
+        '400':
+          description: 'Invalid ID supplied'
+        '404':
+          description: 'UserRoles not found'
+        '405':
+          description: 'Validation exception'
+      security:
+        -
+          bearer_auth: []
+    delete:
+      tags:
+        - UserRoles
+      summary: 'Deletes a UserRoles'
+      operationId: deleteUserRoles
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'UserRoles id to delete'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: 'Invalid ID supplied'
+        '404':
+          description: 'Pet not found'
+      security:
+        -
+          bearer_auth: []
+  /userSubdivisions:
+    get:
+      tags:
+        - UserSubdivisions
+      summary: 'Find list UserSubdivisions'
+      description: 'Returns list of UserSubdivisions'
+      operationId: getUserSubdivisions
+      parameters:
+        -
+          name: search
+          in: query
+          description: 'поиск по определенному столбцу'
+          schema:
+            type: object
+        -
+          name: order
+          in: query
+          description: 'сортировка по определенному столбцу'
+          schema:
+            type: object
+        -
+          name: page
+          in: query
+          description: Страница
+          schema:
+            type: int32
+        -
+          name: limit
+          in: query
+          description: 'Элементов на странице'
+          schema:
+            type: int32
+      responses:
+        '200':
+          description: 'успешная операция'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/UserSubdivisions' } }
+                  pagination: { properties: { currentPage: { type: integer }, totalPage: { type: integer } }, type: object }
+                type: object
+            application/xml:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/UserSubdivisions' } }
+                  pagination: { type: array, items: { $ref: '#/components/schemas/UserSubdivisions' } }
+                type: object
+        '404':
+          description: 'UserSubdivisions не найден'
+      security:
+        -
+          bearer_auth: []
+    post:
+      tags:
+        - UserSubdivisions
+      summary: 'Add a new UserSubdivisions to the store'
+      operationId: addUserSubdivisions
+      requestBody:
+        $ref: '#/components/requestBodies/UserSubdivisions'
+      responses:
+        '201':
+          description: 'Created UserSubdivisions'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSubdivisions'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/UserSubdivisions'
+        '405':
+          description: 'Invalid input'
+      security:
+        -
+          bearer_auth: []
+  '/userSubdivisions/{id}':
+    get:
+      tags:
+        - UserSubdivisions
+      summary: 'Find UserSubdivisions by ID'
+      description: 'Returns a single UserSubdivisions'
+      operationId: getUserSubdivisionsById
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID of UserSubdivisions to return'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSubdivisions'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/UserSubdivisions'
+        '400':
+          description: 'Invalid ID supplier'
+        '404':
+          description: 'UserSubdivisions not found'
+      security:
+        -
+          bearer_auth: []
+    put:
+      tags:
+        - UserSubdivisions
+      summary: 'Update an existing UserSubdivisions'
+      operationId: updateUserSubdivisions
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'UserSubdivisions id to update'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/UserSubdivisions'
+      responses:
+        '400':
+          description: 'Invalid ID supplied'
+        '404':
+          description: 'UserSubdivisions not found'
+        '405':
+          description: 'Validation exception'
+      security:
+        -
+          bearer_auth: []
+    delete:
+      tags:
+        - UserSubdivisions
+      summary: 'Deletes a UserSubdivisions'
+      operationId: deleteUserSubdivisions
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'UserSubdivisions id to delete'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: 'Invalid ID supplied'
+        '404':
+          description: 'Pet not found'
+      security:
+        -
+          bearer_auth: []
+  /users:
+    get:
+      tags:
+        - User
+      summary: 'Find list User'
+      description: 'Returns list of User'
+      operationId: getUser
+      parameters:
+        -
+          name: search
+          in: query
+          description: 'search by column defined'
+          schema:
+            type: object
+        -
+          name: order
+          in: query
+          description: 'order by column defined'
+          schema:
+            type: object
+        -
+          name: page
+          in: query
+          description: 'page to show'
+          schema:
+            type: int32
+        -
+          name: limit
+          in: query
+          description: 'count data display per page'
+          schema:
+            type: int32
+      responses:
+        '200':
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/User' } }
+                  pagination: { properties: { currentPage: { type: integer }, totalPage: { type: integer } }, type: object }
+                type: object
+            application/xml:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/User' } }
+                  pagination: { type: array, items: { $ref: '#/components/schemas/User' } }
+                type: object
+        '404':
+          description: 'User not found'
+      security:
+        -
+          bearer_auth: []
+    post:
+      tags:
+        - User
+      summary: 'Add a new User to the store'
+      operationId: addUser
+      requestBody:
+        $ref: '#/components/requestBodies/User'
+      responses:
+        '201':
+          description: 'Created User'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+        '405':
+          description: 'Invalid input'
+      security:
+        -
+          bearer_auth: []
+  '/users/{id}':
+    get:
+      tags:
+        - User
+      summary: 'Find User by ID'
+      description: 'Returns a single User'
+      operationId: getUserById
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID of User to return'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 'Invalid ID supplier'
+        '404':
+          description: 'User not found'
+      security:
+        -
+          bearer_auth: []
+    put:
+      tags:
+        - User
+      summary: 'Update an existing User'
+      operationId: updateUser
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'User id to update'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/User'
+      responses:
+        '400':
+          description: 'Invalid ID supplied'
+        '404':
+          description: 'User not found'
+        '405':
+          description: 'Validation exception'
+      security:
+        -
+          bearer_auth: []
+    delete:
+      tags:
+        - User
+      summary: 'Deletes a User'
+      operationId: deleteUser
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'User id to delete'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: 'Invalid ID supplied'
+        '404':
+          description: 'Pet not found'
+      security:
+        -
+          bearer_auth: []
+components:
+  schemas:
+    Pages:
+      title: Pages
+      description: Pages
+      properties:
+        id:
+          title: id
+          description: id
+          type: integer
+          format: '-'
+          maxLength: 11
+          nullable: false
+        title:
+          title: title
+          description: title
+          type: string
+          format: '-'
+          maxLength: 255
+          nullable: false
+        status:
+          title: status
+          description: status
+          type: integer
+          format: '-'
+          maxLength: 1
+          nullable: false
+      type: object
+    User:
+      title: User
+      description: User
+      properties:
+        email:
+          title: email
+          description: 'email пользователя'
+          type: string
+          format: '-'
+          maxLength: 128
+          nullable: false
+        password:
+          title: password
+          description: Пароль
+          type: string
+          format: '-'
+          maxLength: 255
+          nullable: true
+        role:
+          title: role
+          description: 'ID должности из /userRoles'
+          type: integer
+          format: '-'
+          maxLength: 11
+          nullable: false
+        status:
+          title: status
+          description: 'Статус: 0 - выкл., 1- вкл.'
+          type: integer
+          format: '-'
+          maxLength: 11
+          nullable: false
+        surname:
+          title: surname
+          description: Фамилия
+          type: string
+          format: '-'
+          maxLength: 255
+          nullable: false
+        name:
+          title: name
+          description: Имя
+          type: string
+          format: '-'
+          maxLength: 255
+          nullable: false
+        patronymic:
+          title: patronymic
+          description: Отчество
+          type: string
+          format: '-'
+          maxLength: 255
+          nullable: false
+        passport_serial:
+          title: passport_serial
+          description: 'Серия паспорта'
+          type: integer
+          format: '-'
+          maxLength: 4
+          nullable: false
+        passport_number:
+          title: passport_number
+          description: 'Номер паспорта'
+          type: integer
+          format: '-'
+          maxLength: 6
+          nullable: false
+        passport_subdivision:
+          title: passport_subdivision
+          description: 'Код подразделения формата 111-222'
+          type: string
+          format: '-'
+          maxLength: 7
+          nullable: false
+        employment_date:
+          title: employment_date
+          description: 'Дата приема на работу в unix'
+          type: integer
+          format: '-'
+          maxLength: 11
+          nullable: false
+        questionary:
+          title: questionary
+          description: 'Ссылка на анкету'
+          type: string
+          format: '-'
+          maxLength: 255
+          nullable: false
+      type: object
+    UserAccess:
+      title: UserAccess
+      description: UserAccess
+      properties:
+        id:
+          title: id
+          description: id
+          type: integer
+          format: '-'
+          maxLength: 11
+          nullable: false
+        id_roles:
+          title: id_roles
+          description: 'ID должности из /userRoles '
+          type: integer
+          format: '-'
+          maxLength: 11
+          nullable: false
+        id_pages:
+          title: id_pages
+          description: 'ID раздела из /pages '
+          type: integer
+          format: '-'
+          maxLength: 11
+          nullable: false
+        access:
+          title: access
+          description: 'Возможные значения 1 - Разрешено / 2 - Запрещено / 3 - Только просмотр'
+          type: integer
+          format: '-'
+          maxLength: 1
+          nullable: false
+      type: object
+    UserRoles:
+      title: UserRoles
+      description: UserRoles
+      properties:
+        id:
+          title: id
+          description: id
+          type: integer
+          format: '-'
+          maxLength: 11
+          nullable: false
+        id_subdivisions:
+          title: id_subdivisions
+          description: id_subdivisions
+          type: integer
+          format: '-'
+          maxLength: 10
+          nullable: false
+        title:
+          title: title
+          description: title
+          type: string
+          format: '-'
+          maxLength: 255
+          nullable: false
+        status:
+          title: status
+          description: status
+          type: integer
+          format: '-'
+          maxLength: 1
+          nullable: false
+      type: object
+    UserSubdivisions:
+      title: UserSubdivisions
+      description: UserSubdivisions
+      properties:
+        id:
+          title: id
+          description: id
+          type: integer
+          format: '-'
+          maxLength: 11
+          nullable: false
+        title:
+          title: title
+          description: title
+          type: string
+          format: '-'
+          maxLength: 255
+          nullable: false
+        status:
+          title: status
+          description: status
+          type: integer
+          format: '-'
+          maxLength: 1
+          nullable: false
+      type: object
+  requestBodies:
+    Pages:
+      description: 'Pages object that needs to be added'
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/Pages'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Pages'
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Pages'
+    User:
+      description: 'User object that needs to be added'
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/User'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/User'
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+    UserAccess:
+      description: 'UserAccess object that needs to be added'
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/UserAccess'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/UserAccess'
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserAccess'
+    UserRoles:
+      description: 'UserRoles object that needs to be added'
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/UserRoles'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/UserRoles'
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserRoles'
+    UserSubdivisions:
+      description: 'UserSubdivisions object that needs to be added'
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/UserSubdivisions'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/UserSubdivisions'
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserSubdivisions'
+tags:
+  -
+    name: Pages
+    description: 'Справочник с разделами сайта'
+  -
+    name: User
+    description: ''
+  -
+    name: UserAccess
+    description: 'Работа с доступами пользователя'
+  -
+    name: UserRoles
+    description: 'Справочник с должностями сотрудников (пользователей)'
+  -
+    name: UserSubdivisions
+    description: 'Работа с структурой компании (Руководящий состав, тех. отдел и тд)'
